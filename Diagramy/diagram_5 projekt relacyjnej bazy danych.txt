@@ -1,0 +1,105 @@
+Table Hotel {
+  idHotel int [pk]
+  nazwa varchar
+  adres varchar
+}
+
+Enum pokoj_standard {
+  standard
+  premium
+  apartament
+}
+
+Enum pokoj_status {
+  wolny
+  zajety
+  zamkniety
+}
+
+Table Pokoj {
+  idPokoj int [pk]
+  idHotel_FK int [ref: > Hotel.idHotel]
+  numerPokoju varchar
+  standard pokoj_standard
+  cenaZaDobe decimal
+  status pokoj_status
+  liczbaMiejsc int
+}
+
+Table Gosc {
+  idGosc int [pk]
+  imie varchar
+  nazwisko varchar
+  email varchar
+  numerTelefonu varchar
+}
+
+Table Recepcjonista {
+  idRecepcjonista int [pk]
+  imie varchar
+  nazwisko varchar
+  login varchar
+  haslo varchar
+}
+
+Enum rezerwacja_status {
+  nowa
+  oczekujaca
+  potwierdzona
+  anulowana
+  oplacona
+  zrealizowana
+}
+
+Table Rezerwacja {
+  idRezerwacja int [pk]
+  idGosc_FK int [ref: > Gosc.idGosc]
+  idRecepcjonista_FK int [ref: > Recepcjonista.idRecepcjonista]
+  dataZameldowania date
+  dataWymeldowania date
+  status rezerwacja_status
+  kwota decimal
+}
+
+// Tabela asocjacyjna realizująca relację N:M między Rezerwacją a Pokojem
+Table Rezerwacja_Pokoj {
+  idRezerwacja_FK int [ref: > Rezerwacja.idRezerwacja]
+  idPokoj_FK int [ref: > Pokoj.idPokoj]
+  
+  indexes {
+    (idRezerwacja_FK, idPokoj_FK) [pk] // Złożony klucz główny
+  }
+}
+
+Table Pobyt {
+  idPobyt int [pk]
+  idRezerwacja_FK int [ref: > Rezerwacja.idRezerwacja]
+  idGosc_FK int [ref: > Gosc.idGosc]
+  idRecepcjonista_FK int [ref: > Recepcjonista.idRecepcjonista]
+  idPokoj_FK int [ref: > Pokoj.idPokoj]
+  dataZameldowania datetime
+  dataWymeldowania datetime
+}
+
+Table Rachunek {
+  idRachunek int [pk]
+  idPobyt_FK int [ref: > Pobyt.idPobyt]
+  dataWystawienia date
+  kwotaCalkowita decimal
+  statusPlatnosci boolean
+}
+
+Enum platnosc_status {
+  oczekujaca
+  zaakceptowana
+  odrzucona
+}
+
+Table Platnosc {
+  idPlatnosc int [pk]
+  idRachunek_FK int [ref: > Rachunek.idRachunek]
+  kwota decimal
+  dataPlatnosci datetime
+  metodaPlatnosci varchar
+  status platnosc_status
+}
